@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+django = "==2.2.13"
+pillow = "*"
+django-cloudinary-storage = "*"
+gunicorn = "*"
+django-heroku = "*"
+dj-database-url = "*"
+psycopg2 = "==2.7.6.1"
+django-stdimage = "*"
+django-imagekit = "*"
+django-taggit = "==1.2.0"
+
+[requires]
+python_version = "3.6"

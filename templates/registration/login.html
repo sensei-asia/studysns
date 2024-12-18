@@ -1,0 +1,54 @@
+{% extends "base/app.html" %}
+{% block contents %}
+<div class="container">
+    <div class=" card">
+        <div class="card-header bg-primary  text-white">
+            ログインフォーム
+        </div>
+        <div class="card-body">
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            <form action="{% url 'login' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in form %}
+                {{ field.errors }}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">ログイン</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <h5>更新履歴</h5>
+    <table class='table table-striped'>
+        <tr>
+            <td>2020-07-01</td>
+            <td>Ver1.4</td>
+            <td>投稿編集・削除機能の追加</td>
+        </tr>
+        <tr>
+            <td>2020-06-23</td>
+            <td>Ver1.3</td>
+            <td>プロフィール編集機能の追加</td>
+        </tr>
+        <tr>
+            <td>2020-06-21</td>
+            <td>Ver1.2</td>
+            <td>アイコン編集機能とユーザー詳細画面の追加</td>
+        </tr>
+        <tr>
+            <td>2020-06-20</td>
+            <td>Ver1.1</td>
+            <td>公開</td>
+        </tr>
+    </table>
+</div>
+
+{% endblock %}

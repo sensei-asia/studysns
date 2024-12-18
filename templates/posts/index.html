@@ -1,0 +1,127 @@
+{% extends "base/app.html" %}
+
+{% load custom_filter %}
+{% block contents %}
+
+<!-- timeline section-->
+<section>
+    <!-- もし投稿があれば一覧を表示する -->
+    {% if post_list %}
+    {% for post in post_list %}
+    <div class="row p-10 text-left">
+        <div class="col-10 offset-1">
+            <div class="card">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><a href="{% url 'accounts:userDetail' post.author%}" class="thumbnail">
+                        <img src="{{ post.author.icon_url }}" class="img-circle img-responsive" width="50" height="50">
+                        {{ post.author.username }}
+                        </a>
+                    </li>
+                </ul>
+                <img src="{{ post.picture.url }}" class="card-img" />
+                <div class="card-body">
+                    <!-- いいね機能 -->
+                    <div class="like_list_{{post.id}}">
+                        <!-- お気に入り機能 -->
+                        {{ post|is_like:user }}
+                        {{ like_list|get_likes:post.id }}
+                        <br>
+                        {{ comment_list|get_comment_list:post.id }}
+                    </div>
+                     <div class="card-hedder">
+                        コメントする
+                         <div><span class="mr-2">@{{ post.author.username }}</span>{{ post.text }}</div>
+                    </div>
+                    <div class="pt-2">
+                        <ul class="pl-0 mb-0">
+                            <li class="list-inline-item">
+                                <small>投稿時間{{ post.created_at|date:'Y-m-d H:i' }}</small>
+                            </li>
+                            &nbsp;
+                            <li class="list-inline-item">
+                                {% for tag in post.tags.all %}
+                                {{ tag.name }}
+                                {% endfor %}
+                            </li>
+                            {% if post.author.id == request.user.id %}
+                            <!-- 投稿者は編集と削除ができるようにする TODO:管理者も -->
+                            <!-- 削除ボタン -->
+                            <li class="list-inline-item float-right mr-0">
+                                <form method="post" action="{% url 'posts:delete_post' post.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger" type="submit" onclick='return confirm("本当に削除しますか？");'>
+                                <i class="fas fa-trash-alt"></i> 削除</button>
+                                </form>
+                            </li>
+                            <!-- 編集ボタン -->
+                            <li class="list-inline-item float-right mr-1"><a href="{% url 'posts:update_post' post.id %}">
+                                <button class="btn btn-primary">
+                                <i class="fas fa-edit"></i> 編集
+                                </button></a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    コメント投稿
+                    <form class="comment" id="{{post.id}}">
+                        {% csrf_token %}
+                        <input class="form-control col-12" name="comment" type="text" class="comment">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="row p-5">
+        <div class="col-6 offset-3 text-center">
+            <div class="jumbotron jumbotron-fluid">
+                <div class="container">
+                    <p class="lead"><a href="{% url 'posts:new' %}">投稿</a>して学びに参加しよう</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+</section>
+
+
+<!-- ここにJSスクリプトを書いていく -->
+<script>
+    $(document).on('click', '.like', function () {
+        var id = $(this).attr("id");
+        do_like(id)
+    })
+
+    .on('submit', '.comment', function () {
+        do_comment($(this))
+        $(this).find(":text").val("")
+        return false
+    });
+
+    function do_like(post_id) {
+        $.ajax({
+                url: `./${post_id}/like`,
+                type: 'get'
+        })
+        .done((data) => {
+            $('.like.list_' + post_id).html(data);
+        })
+    }
+
+    function do_comment(form) {
+        console.log(form.serialize())
+        $.ajax({
+                url: `./${form.attr("id")}/comment/`,
+                type: 'post',
+                data: form.serialize(),
+            })
+            .done((data) => {
+                $('.like_list_' + form.attr("id")).html(data);
+            })
+    }
+</script>
+
+{% endblock contents %}
